@@ -20,6 +20,7 @@ public class Application {
         dataSource.setUsername("min");
         dataSource.setPassword("min"); // 비밀번호 설정 확인!
 
+        System.out.println("안뇽");
         try {
             // ==========================================
             // 2. 객체 조립 (Dependency Injection)
