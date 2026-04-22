@@ -7,18 +7,19 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CourseRepository {
+// 인터페이스를 구현(implements)합니다.
+public class JdbcCourseRepository implements CourseRepository {
 
     private final DataSource dataSource;
 
-    public CourseRepository(DataSource dataSource) {
+    public JdbcCourseRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    // 1. 등록 (Insert)
+    @Override
     public Course save(Course course) throws SQLException {
         String sql = "INSERT INTO Courses (user_id, category_id, course_name, course_time, price, thumbnail_url, difficult_level) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -28,7 +29,6 @@ public class CourseRepository {
             pstmt.setString(3, course.getCourseName());
             pstmt.setInt(4, course.getCourseTime());
 
-            // 가격이 null일 수 있으므로 처리
             if (course.getPrice() != null) {
                 pstmt.setLong(5, course.getPrice());
             } else {
@@ -37,24 +37,22 @@ public class CourseRepository {
             pstmt.setString(6, course.getThumbnailUrl());
             pstmt.setString(7, course.getDifficultLevel());
 
-            pstmt.executeUpdate(); // DB에 쿼리 전송
+            pstmt.executeUpdate();
 
-            // DB에서 자동 생성된 PK(course_id)와 등록일시(created_at) 가져오기
             try (ResultSet rs = pstmt.getGeneratedKeys()) {
                 if (rs.next()) {
                     Long generatedId = rs.getLong("course_id");
                     Timestamp createdAt = rs.getTimestamp("created_at");
-                    // DB가 만들어준 값을 포함하여 완벽한 Entity로 조립 후 반환
                     return new Course(generatedId, course.getUserId(), course.getCategoryId(),
-                            course.getCourseName(), course.getCourseTime(), course.getPrice(),
-                            course.getThumbnailUrl(), createdAt, null, course.getDifficultLevel());
+                        course.getCourseName(), course.getCourseTime(), course.getPrice(),
+                        course.getThumbnailUrl(), createdAt, null, course.getDifficultLevel());
                 }
             }
         }
         throw new SQLException("강의 등록 실패");
     }
 
-    // 2. 단건 조회 (Select One)
+    @Override
     public Course findById(Long courseId) throws SQLException {
         String sql = "SELECT * FROM Courses WHERE course_id = ?";
         try (Connection conn = dataSource.getConnection();
@@ -70,7 +68,7 @@ public class CourseRepository {
         return null;
     }
 
-    // 3. 전체 조회 (Select All)
+    @Override
     public List<Course> findAll() throws SQLException {
         String sql = "SELECT * FROM Courses ORDER BY course_id DESC";
         List<Course> courses = new ArrayList<>();
@@ -85,7 +83,8 @@ public class CourseRepository {
         }
         return courses;
     }
-    //수장
+
+    @Override
     public void update(Long courseId, Course course) throws SQLException {
         String sql = "UPDATE Courses SET course_name = ?, course_time = ?, price = ?, difficult_level = ? WHERE course_id = ?";
 
@@ -103,7 +102,7 @@ public class CourseRepository {
         }
     }
 
-    // 4. 삭제 (Delete)
+    @Override
     public void deleteById(Long courseId) throws SQLException {
         String sql = "DELETE FROM Courses WHERE course_id = ?";
         try (Connection conn = dataSource.getConnection();
@@ -114,19 +113,19 @@ public class CourseRepository {
         }
     }
 
-    // 중복되는 ResultSet -> Entity 매핑 로직을 하나의 메서드로 분리 (유지보수 용이)
+    // 인터페이스에 없는 내부 전용(private) 메서드
     private Course mapRowToCourse(ResultSet rs) throws SQLException {
         return new Course(
-                rs.getLong("course_id"),
-                rs.getLong("user_id"),
-                rs.getLong("category_id"),
-                rs.getString("course_name"),
-                rs.getInt("course_time"),
-                rs.getLong("price") == 0 && rs.wasNull() ? null : rs.getLong("price"),
-                rs.getString("thumbnail_url"),
-                rs.getTimestamp("created_at"),
-                rs.getTimestamp("modified_at"),
-                rs.getString("difficult_level")
+            rs.getLong("course_id"),
+            rs.getLong("user_id"),
+            rs.getLong("category_id"),
+            rs.getString("course_name"),
+            rs.getInt("course_time"),
+            rs.getLong("price") == 0 && rs.wasNull() ? null : rs.getLong("price"),
+            rs.getString("thumbnail_url"),
+            rs.getTimestamp("created_at"),
+            rs.getTimestamp("modified_at"),
+            rs.getString("difficult_level")
         );
     }
 }
