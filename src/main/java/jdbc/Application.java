@@ -3,6 +3,7 @@ package jdbc;
 import com.zaxxer.hikari.HikariDataSource;
 import jdbc.course.controller.CourseController;
 import jdbc.course.repository.CourseRepository;
+import jdbc.course.repository.JdbcCourseRepository;
 import jdbc.course.service.CourseService;
 import jdbc.user.controller.UsersController;
 import jdbc.user.repository.UsersRepository;
@@ -32,7 +33,7 @@ public class Application {
 //            UsersController usersController = new UsersController(usersService);
 
             // [Course 도메인 조립] - user와 같은 dataSource를 공유합니다!
-            CourseRepository courseRepository = new CourseRepository(dataSource);
+            CourseRepository courseRepository = new JdbcCourseRepository(dataSource);
             CourseService courseService = new CourseService(courseRepository);
             CourseController courseController = new CourseController(courseService);
 
