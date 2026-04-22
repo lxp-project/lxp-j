@@ -5,6 +5,7 @@ import jdbc.course.dto.CourseSaveRequestDto;
 import jdbc.course.dto.CourseUpdateRequestDto;
 import jdbc.course.service.CourseService;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class CourseController {
@@ -16,57 +17,31 @@ public class CourseController {
         this.courseService = courseService;
     }
 
-    // 사용자의 입력을 받아 DTO로 묶어서 Service로 넘김(등록)
-    public void createCourse(Long userId, Long categoryId, String courseName, Integer courseTime, Long price, String difficultLevel) {
-        try {
-            CourseSaveRequestDto request = new CourseSaveRequestDto(userId, categoryId, courseName, courseTime, price, null, difficultLevel);
-            CourseResponseDto response = courseService.registerCourse(request);
-
-            System.out.println("[✅ 강의 등록 성공] " + response.toString());
-        } catch (Exception e) {
-            System.out.println("[❌ 강의 등록 실패] " + e.getMessage());
-        }
-    }
-    // 조회
-    public void findCourse(Long courseId) {
-        try {
-            CourseResponseDto response = courseService.getCourse(courseId);
-            System.out.println("[🔍 강의 조회 결과] " + response.toString());
-        } catch (Exception e) {
-            System.out.println("[❌ 강의 조회 실패] " + e.getMessage());
-        }
-    }
-    // 조회(전체)
-    public void findAllCourses() {
-        try {
-            List<CourseResponseDto> responses = courseService.getAllCourses();
-            System.out.println("\n=== 📚 전체 강의 목록 (" + responses.size() + "개) ===");
-            for (CourseResponseDto response : responses) {
-                System.out.println(response.toString());
-            }
-            System.out.println("====================================\n");
-        } catch (Exception e) {
-            System.out.println("[❌ 목록 조회 실패] " + e.getMessage());
-        }
-    }
-    //수정
-    public void editCourse(Long courseId, String courseName, Integer courseTime, Long price, String difficultLevel) {
-        try {
-            CourseUpdateRequestDto request = new CourseUpdateRequestDto(courseName, courseTime, price, difficultLevel);
-            CourseResponseDto response = courseService.updateCourse(courseId, request);
-            System.out.println("[✅ 강의 수정 성공] " + response.toString());
-        } catch (Exception e) {
-            System.out.println("[❌ 강의 수정 실패] " + e.getMessage());
-        }
+    // 1. 등록 (Create)
+    // View가 포장해준 DTO를 그대로 Service로 넘기고, 결과를 반환합니다.
+    public CourseResponseDto createCourse(CourseSaveRequestDto requestDto) throws SQLException {
+        return courseService.registerCourse(requestDto);
     }
 
-    // 제거
-    public void removeCourse(Long courseId) {
-        try {
-            courseService.deleteCourse(courseId);
-            System.out.println("[🗑️ 강의 삭제 완료] 강의 ID : " + courseId);
-        } catch (Exception e) {
-            System.out.println("[❌ 강의 삭제 실패] " + e.getMessage());
-        }
+    // 2. 단일 조회 (Read)
+    public CourseResponseDto findCourse(Long courseId) throws SQLException {
+        return courseService.getCourse(courseId);
+    }
+
+    // 3. 전체 조회 (Read All)
+    public List<CourseResponseDto> findAllCourses() throws SQLException {
+        return courseService.getAllCourses();
+    }
+
+    // 4. 수정 (Update)
+    // 어떤 강의(ID)를, 어떤 내용(DTO)으로 바꿀지 전달합니다.
+    public CourseResponseDto editCourse(Long courseId, CourseUpdateRequestDto requestDto) throws SQLException {
+        return courseService.updateCourse(courseId, requestDto);
+    }
+
+    // 5. 삭제 (Delete)
+    // 삭제는 보통 반환값이 없으므로 void를 유지합니다.
+    public void removeCourse(Long courseId) throws SQLException {
+        courseService.deleteCourse(courseId);
     }
 }
