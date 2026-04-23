@@ -19,5 +19,5 @@ public interface CourseRepository {
     void update(Long courseId, Course course) throws SQLException;
 
     // 5. 삭제
-    void deleteById(Long courseId) throws SQLException;
+    int deleteById(Long courseId) throws SQLException;
 }

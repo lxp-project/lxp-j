@@ -18,26 +18,32 @@ public class CourseDeleteView {
     }
 
     public void execute() {
-        System.out.println("\n=================================================");
-        System.out.println("                 [ 🗑️ 강의 정보 삭제 ]                 ");
-        System.out.println("  * 입력을 취소하고 메뉴로 돌아가려면 'q'를 입력하세요.");
-        System.out.println("-------------------------------------------------");
-        System.out.println("  [💡 입력 범위 안내]");
-        System.out.println("   - ID 및 가격 (Long)   : 최대 약 922경(거의 무한)");
-        System.out.println("=================================================\n");
+        while(true){
+            System.out.println("\n=================================================");
+            System.out.println("                 [ 🗑️ 강의 정보 삭제 ]                 ");
+            System.out.println("  * 입력을 취소하고 메뉴로 돌아가려면 'q'를 입력하세요.");
+            System.out.println("-------------------------------------------------");
+            System.out.println("  [💡 입력 범위 안내]");
+            System.out.println("   - ID 및 가격 (Long)   : 최대 약 922경(거의 무한)");
+            System.out.println("=================================================\n");
 
-        try {
-            Long courseId = getValidLong(br,"🔹 삭제할 강의 ID: ");
+            try {
+                Long courseId = getValidLong(br,"🔹 삭제할 강의 ID: ");
 
-            // Controller 호출
-            controller.removeCourse(courseId);
-            System.out.println("\n[✅ 강의 삭제 완료] 삭제된 강의 ID : " + courseId);
+                // Controller 호출
+                controller.removeCourse(courseId);
+                System.out.println("\n[✅ 강의 삭제 완료] 삭제된 강의 ID : " + courseId);
+                break; // 삭제하면 메인으로 가도록.
 
-        } catch (UserCancelException e) {
-            System.out.println("\n[🛑 중단] " + e.getMessage());
+            } catch (UserCancelException e) {
+                System.out.println("\n[🛑 중단] " + e.getMessage());
+                return;
 
-        } catch (Exception e) {
-            System.out.println("\n[❌ 삭제 실패] " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("\n[❌ 삭제 실패] " + e.getMessage());
+                System.out.println("다시 시도해 주세요.");
+                // 별도의 처리가 없어도 루프가 다시 돌아가며 ID 입력을 다시 받습니다.
+            }
         }
     }
 

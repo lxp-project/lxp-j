@@ -102,14 +102,18 @@ public class JdbcCourseRepository implements CourseRepository {
         }
     }
 
+    // jdbc.course.repository.JdbcCourseRepository.java
+
     @Override
-    public void deleteById(Long courseId) throws SQLException {
+    public int deleteById(Long courseId) throws SQLException { // 💡 void -> int 변경
         String sql = "DELETE FROM Courses WHERE course_id = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setLong(1, courseId);
-            pstmt.executeUpdate();
+
+            // 💡 결과를 허공에 날리지 말고 return 합니다! (삭제 성공시 1, 실패시 0 반환)
+            return pstmt.executeUpdate();
         }
     }
 
