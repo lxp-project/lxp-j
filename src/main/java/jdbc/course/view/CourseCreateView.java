@@ -1,10 +1,12 @@
 package jdbc.course.view;
 
 import jdbc.course.controller.CourseController;
+import jdbc.course.difficulty.Difficulty;
 import jdbc.course.dto.CourseResponseDto;
 import jdbc.course.dto.CourseSaveRequestDto;
+import jdbc.course.util.ConsoleInputUtil;
+import jdbc.course.exception.UserCancelException;
 import java.io.BufferedReader;
-import java.io.IOException;
 
 public class CourseCreateView {
     private final CourseController controller;
@@ -16,38 +18,38 @@ public class CourseCreateView {
     }
 
     public void execute() {
-        System.out.println("\n[새로운 강의 등록]");
+        System.out.println("\n=================================================");
+        System.out.println("                 [ 📝 새로운 강의 등록 ]                 ");
+        System.out.println("  * 입력을 취소하고 메뉴로 돌아가려면 'q'를 입력하세요.");
+        System.out.println("-------------------------------------------------");
+        System.out.println("  [💡 입력 범위 안내]");
+        System.out.println("   - 강의 시간 (Integer) : 최대 약 21억");
+        System.out.println("   - ID 및 가격 (Long)   : 최대 약 922경(거의 무한)");
+        System.out.println("=================================================\n");
 
         try {
-            // 1. 입력 단계 (여기서 NumberFormatException, IOException 발생 가능)
-            System.out.print("유저 ID: "); Long userId = Long.parseLong(br.readLine());
-            System.out.print("카테고리 ID: "); Long categoryId = Long.parseLong(br.readLine());
-            System.out.print("강의명: "); String name = br.readLine();
-            System.out.print("강의 시간(초): "); Integer time = Integer.parseInt(br.readLine());
-            System.out.print("가격(원): "); Long price = Long.parseLong(br.readLine());
-            System.out.print("썸네일: "); String url = br.readLine();
-            System.out.print("난이도: "); String level = br.readLine();
+            // 💡 ConsoleInputUtil을 사용해서 단 한 줄로 안전한 입력을 처리! (br 객체를 같이 넘겨줌)
+            Long userId = ConsoleInputUtil.getValidLong(br, "🔹 유저 ID: ");
+            Long categoryId = ConsoleInputUtil.getValidLong(br, "🔹 카테고리 ID: ");
+            String name = ConsoleInputUtil.getValidString(br, "🔹 강의명: ");
+            Integer time = ConsoleInputUtil.getValidInteger(br, "🔹 강의 시간(초): ");
+            Long price = ConsoleInputUtil.getValidLong(br, "🔹 가격(원): ");
+            String url = ConsoleInputUtil.getValidString(br, "🔹 썸네일 URL: ");
+            // 💡 텍스트 입력 대신 Enum 선택 메서드 호출
+            Difficulty difficulty = ConsoleInputUtil.getValidDifficulty(br);
+            String level = difficulty.getDescription(); // DB에는 "초보" 등의 문자열로 저장
 
-            // 2. DTO 매핑
             CourseSaveRequestDto dto = new CourseSaveRequestDto(userId, categoryId, name, time, price, url, level);
 
-            // 3. Controller 호출 및 성공 응답(ResponseDto) 처리
-            // Service쪽에서 문제가 생기면 여기서 에러가 던져집니다.
             CourseResponseDto response = controller.createCourse(dto);
-            System.out.println("[✅ 강의 등록 성공] " + response.toString());
+            System.out.println("\n[✅ 강의 등록 성공] 정상적으로 처리되었습니다.");
+            System.out.println(" -> 등록된 강의명: " + response.toString());
 
-        } catch (NumberFormatException e) {
-            // 시나리오 A: 타입 변환 실패 (오타)
-            System.out.println("[❌ 입력 오류] 숫자만 입력해야 하는 항목에 문자가 포함되었습니다. 다시 시도해 주세요.");
-
-        } catch (IOException e) {
-            // 키보드 입력 자체가 끊겼을 때
-            System.out.println("[❌ 시스템 오류] 입력을 읽는 중 문제가 발생했습니다.");
+        } catch (UserCancelException e) {
+            System.out.println("\n[🛑 중단] " + e.getMessage());
 
         } catch (Exception e) {
-            // 시나리오 B: 비즈니스 에러 또는 DB 에러 (Service에서 던진 에러)
-            // ex) "강의 등록 실패", "중복된 이름입니다" 등
-            System.out.println("[❌ 처리 실패] " + e.getMessage());
+            System.out.println("\n[❌ 처리 실패] " + e.getMessage());
         }
     }
 }

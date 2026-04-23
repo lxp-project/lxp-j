@@ -1,10 +1,16 @@
 package jdbc.course.view;
 
 import jdbc.course.controller.CourseController;
+import jdbc.course.difficulty.Difficulty;
 import jdbc.course.dto.CourseResponseDto;
 import jdbc.course.dto.CourseUpdateRequestDto;
+import jdbc.course.exception.UserCancelException;
+import jdbc.course.util.ConsoleInputUtil;
+
 import java.io.BufferedReader;
 import java.io.IOException;
+
+import static jdbc.course.util.ConsoleInputUtil.*;
 
 public class CourseUpdateView {
     private final CourseController controller;
@@ -15,47 +21,41 @@ public class CourseUpdateView {
         this.br = br;
     }
 
-    // throws IOException을 제거하고 내부에서 모두 처리합니다.
     public void execute() {
-        System.out.println("\n[강의 정보 수정]");
+        System.out.println("\n=================================================");
+        System.out.println("                 [ 🔄 강의 정보 수정 ]                 ");
+        System.out.println("  * 입력을 취소하고 메뉴로 돌아가려면 'q'를 입력하세요.");
+        System.out.println("-------------------------------------------------");
+        System.out.println("  [💡 입력 범위 안내]");
+        System.out.println("   - 강의 시간 (Integer) : 최대 약 21억");
+        System.out.println("   - ID 및 가격 (Long)   : 최대 약 922경(거의 무한)");
+        System.out.println("=================================================\n");
 
         try {
-            // 1. 입력 받기 (NumberFormatException 위험 구간)
-            System.out.print("수정할 강의 ID: ");
-            Long courseId = Long.parseLong(br.readLine());
-
-            System.out.print("새 강의명: ");
-            String name = br.readLine();
-
-            System.out.print("새 강의 시간(초): ");
-            Integer time = Integer.parseInt(br.readLine());
-
-            System.out.print("새 가격(원): ");
-            Long price = Long.parseLong(br.readLine());
-
-            System.out.print("새 난이도(초급/중급/고급): ");
-            String level = br.readLine();
+            // 1. 헬퍼 메서드로 안전하게 입력받음 ('q' 누르면 예외 터짐)
+            Long courseId = getValidLong(br,"🔹 수정할 강의 ID: ");
+            String name = getValidString(br,"🔹 새 강의명: ");
+            Integer time = getValidInteger(br,"🔹 새 강의 시간(초): ");
+            Long price = getValidLong(br,"🔹 새 가격(원): ");
+            // 💡 텍스트 입력 대신 Enum 선택 메서드 호출
+            Difficulty difficulty = ConsoleInputUtil.getValidDifficulty(br);
+            String level = difficulty.getDescription(); // DB에는 "초보" 등의 문자열로 저장
 
             // 2. DTO 포장
             CourseUpdateRequestDto dto = new CourseUpdateRequestDto(name, time, price, level);
 
-            // 3. Controller 호출 및 성공 결과 출력
-            // Controller가 수정된 강의 정보를 담은 ResponseDto를 반환한다고 가정합니다.
+            // 3. Controller 호출
             CourseResponseDto response = controller.editCourse(courseId, dto);
-            System.out.println("[✅ 강의 수정 성공] " + response.toString());
+            System.out.println("\n[✅ 강의 수정 성공] 정상적으로 변경되었습니다.");
+            System.out.println(" -> 수정된 강의명: " + response.toString());
 
-        } catch (NumberFormatException e) {
-            // ID, 시간, 가격에 숫자가 아닌 문자를 입력했을 때 방어!
-            System.out.println("[❌ 입력 오류] ID, 시간, 가격은 반드시 숫자로 입력해 주세요.");
-
-        } catch (IOException e) {
-            // 키보드 입력 스트림에 문제가 생겼을 때 방어!
-            System.out.println("[❌ 시스템 오류] 입력을 처리하는 중 문제가 발생했습니다.");
+        } catch (UserCancelException e) {
+            // 사용자가 'q'를 눌러 던진 예외를 여기서 안전하게 받아냄
+            System.out.println("\n[🛑 중단] " + e.getMessage());
 
         } catch (Exception e) {
-            // DB에 해당 ID의 강의가 없거나, SQL 문법이 틀렸을 때 방어!
-            // (Service 계층에서 예외 전환으로 던진 에러를 여기서 잡습니다)
-            System.out.println("[❌ 수정 실패] " + e.getMessage());
+            // DB에 없는 ID거나 비즈니스 로직 에러
+            System.out.println("\n[❌ 수정 실패] " + e.getMessage());
         }
     }
 }

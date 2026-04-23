@@ -12,23 +12,29 @@ public class CourseFindAllView {
     }
 
     public void execute() {
-        System.out.println("\n[전체 강의 목록 조회]");
+        System.out.println("\n=================================================");
+        System.out.println("                 [ 📚 전체 강의 목록 ]                 ");
+        System.out.println("=================================================\n");
+
         try {
             List<CourseResponseDto> responses = controller.findAllCourses();
 
             if (responses.isEmpty()) {
-                System.out.println("등록된 강의가 없습니다.");
+                System.out.println("  [알림] 등록된 강의가 아직 없습니다.");
                 return;
             }
 
-            System.out.println("=== 📚 전체 강의 목록 (" + responses.size() + "개) ===");
+            System.out.println("  총 " + responses.size() + "개의 강의가 검색되었습니다.\n");
+
+            // 목록 출력 시 들여쓰기를 추가하여 가독성 향상
             for (CourseResponseDto response : responses) {
-                System.out.println(response.toString());
+                System.out.println("  " + response.toString());
             }
-            System.out.println("====================================");
+
+            System.out.println("\n=================================================");
 
         } catch (Exception e) {
-            System.out.println("[❌ 목록 조회 실패] 서버 통신 중 문제가 발생했습니다: " + e.getMessage());
+            System.out.println("\n[❌ 목록 조회 실패] 서버 통신 중 문제가 발생했습니다: " + e.getMessage());
         }
     }
 }

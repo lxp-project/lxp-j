@@ -1,8 +1,12 @@
 package jdbc.course.view;
 
 import jdbc.course.controller.CourseController;
+import jdbc.course.exception.UserCancelException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
+
+import static jdbc.course.util.ConsoleInputUtil.getValidLong;
 
 public class CourseDeleteView {
     private final CourseController controller;
@@ -14,21 +18,27 @@ public class CourseDeleteView {
     }
 
     public void execute() {
+        System.out.println("\n=================================================");
+        System.out.println("                 [ 🗑️ 강의 정보 삭제 ]                 ");
+        System.out.println("  * 입력을 취소하고 메뉴로 돌아가려면 'q'를 입력하세요.");
+        System.out.println("-------------------------------------------------");
+        System.out.println("  [💡 입력 범위 안내]");
+        System.out.println("   - ID 및 가격 (Long)   : 최대 약 922경(거의 무한)");
+        System.out.println("=================================================\n");
+
         try {
-            System.out.print("\n삭제할 강의 ID를 입력하세요: ");
-            Long courseId = Long.parseLong(br.readLine());
+            Long courseId = getValidLong(br,"🔹 삭제할 강의 ID: ");
 
-            // Controller 호출 (삭제는 보통 반환값이 없으므로 출력만 수행)
+            // Controller 호출
             controller.removeCourse(courseId);
-            System.out.println("[🗑️ 강의 삭제 완료] 삭제된 강의 ID : " + courseId);
+            System.out.println("\n[✅ 강의 삭제 완료] 삭제된 강의 ID : " + courseId);
 
-        } catch (NumberFormatException e) {
-            System.out.println("[❌ 입력 오류] 삭제할 강의 ID는 숫자로 입력해 주세요.");
-        } catch (IOException e) {
-            System.out.println("[❌ 시스템 오류] 입력을 처리하는 중 문제가 발생했습니다.");
+        } catch (UserCancelException e) {
+            System.out.println("\n[🛑 중단] " + e.getMessage());
+
         } catch (Exception e) {
-            // 없는 강의 삭제를 시도하거나 외래키 문제 등이 생겼을 때 방어
-            System.out.println("[❌ 삭제 실패] " + e.getMessage());
+            System.out.println("\n[❌ 삭제 실패] " + e.getMessage());
         }
     }
+
 }
