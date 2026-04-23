@@ -1,31 +1,49 @@
 package jdbc.connection;
 
 import com.zaxxer.hikari.HikariDataSource;
+
 import javax.sql.DataSource;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class DBConnectionManager {
 
-    // 애플리케이션 실행 동안 유지될 단일 데이터소스 인스턴스
     private static HikariDataSource dataSource;
 
-    // 객체 생성을 막기 위한 private 생성자 (유틸리티 클래스화)
     private DBConnectionManager() {}
 
-    // DataSource를 요청할 때 생성되어 있지 않으면 생성 후 반환 (지연 초기화)
     public static DataSource getDataSource() {
         if (dataSource == null) {
-            dataSource = new HikariDataSource();
-            dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/jdbcconsolepg");
-            dataSource.setUsername("min");
-            dataSource.setPassword("min");
+            try {
+                // 1. properties 파일 불러오기
+                Properties props = new Properties();
 
-            // 옵션: 커넥션 풀 사이즈 명시적 지정 (기본값은 10)
-            dataSource.setMaximumPoolSize(10);
+                // 클래스 로더를 통해 resources 폴더 안의 db.properties 파일을 읽음
+                InputStream in = DBConnectionManager.class.getClassLoader().getResourceAsStream("db.properties");
+
+                if (in == null) {
+                    throw new RuntimeException("resources 폴더에서 db.properties 파일을 찾을 수 없습니다.");
+                }
+
+                // 파일 내용을 Properties 객체에 로드
+                props.load(in);
+
+                // 2. 읽어온 값으로 HikariDataSource 설정
+                dataSource = new HikariDataSource();
+                dataSource.setJdbcUrl(props.getProperty("db.url"));
+                dataSource.setUsername(props.getProperty("db.username"));
+                dataSource.setPassword(props.getProperty("db.password"));
+
+                dataSource.setMaximumPoolSize(10);
+
+            } catch (Exception e) {
+                // 파일 읽기 실패나 DB 설정 실패 시 프로그램이 명확하게 종료되도록 예외 처리
+                throw new RuntimeException("DB 커넥션 풀 초기화 실패: 설정 파일을 확인해주세요.", e);
+            }
         }
         return dataSource;
     }
 
-    // 애플리케이션 종료 시 커넥션 풀을 안전하게 닫아주는 메서드
     public static void close() {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
