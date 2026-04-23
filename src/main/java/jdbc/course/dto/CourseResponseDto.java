@@ -25,4 +25,28 @@ public class CourseResponseDto {
     public String toString() {
         return "Course [ID=" + courseId + ", 이름=" + courseName + ", 시간=" + courseTime + "초, 가격=" + price + "원, 난이도=" + difficultLevel + ", 등록일=" + createdAt + "]";
     }
+
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public Integer getCourseTime() {
+        return courseTime;
+    }
+
+    public Long getPrice() {
+        return price;
+    }
+
+    public String getDifficultLevel() {
+        return difficultLevel;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
 }
