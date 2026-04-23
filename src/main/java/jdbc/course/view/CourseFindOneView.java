@@ -2,8 +2,9 @@ package jdbc.course.view;
 
 import jdbc.course.controller.CourseController;
 import jdbc.course.dto.CourseResponseDto;
+import jdbc.course.util.ConsoleInputUtil;
+import jdbc.course.exception.UserCancelException;
 import java.io.BufferedReader;
-import java.io.IOException;
 
 public class CourseFindOneView {
     private final CourseController controller;
@@ -15,21 +16,27 @@ public class CourseFindOneView {
     }
 
     public void execute() {
+        System.out.println("\n=================================================");
+        System.out.println("                 [ 🔍 단일 강의 조회 ]                 ");
+        System.out.println("  * 입력을 취소하고 메뉴로 돌아가려면 'q'를 입력하세요.");
+        System.out.println("=================================================\n");
+
         try {
-            System.out.print("\n조회할 강의 ID를 입력하세요: ");
-            Long courseId = Long.parseLong(br.readLine());
+            // 💡 ConsoleInputUtil을 사용하여 안전하게 입력 및 취소 기능 적용
+            Long courseId = ConsoleInputUtil.getValidLong(br, "🔹 조회할 강의 ID: ");
 
             // Controller 호출 및 반환된 DTO 출력
             CourseResponseDto response = controller.findCourse(courseId);
-            System.out.println("[🔍 강의 조회 결과] " + response.toString());
+            System.out.println("\n[✅ 강의 조회 성공]");
+            System.out.println("  " + response.toString());
 
-        } catch (NumberFormatException e) {
-            System.out.println("[❌ 입력 오류] 강의 ID는 반드시 숫자로 입력해 주세요.");
-        } catch (IOException e) {
-            System.out.println("[❌ 시스템 오류] 입력을 처리하는 중 문제가 발생했습니다.");
+        } catch (UserCancelException e) {
+            // 'q' 입력 시 즉시 메뉴로 복귀
+            System.out.println("\n[🛑 중단] " + e.getMessage());
+
         } catch (Exception e) {
-            // 없는 강의를 조회했을 때 Service에서 던지는 예외 메시지 출력
-            System.out.println("[❌ 조회 실패] " + e.getMessage());
+            // 없는 강의를 조회했을 때 Service에서 던지는 예외
+            System.out.println("\n[❌ 조회 실패] " + e.getMessage());
         }
     }
 }
