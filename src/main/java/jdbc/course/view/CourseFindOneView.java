@@ -19,6 +19,9 @@ public class CourseFindOneView {
         System.out.println("\n=================================================");
         System.out.println("                 [ 🔍 단일 강의 조회 ]                 ");
         System.out.println("  * 입력을 취소하고 메뉴로 돌아가려면 'q'를 입력하세요.");
+        System.out.println("-------------------------------------------------");
+        System.out.println("  [💡 입력 범위 안내]");
+        System.out.println("   - ID 및 가격 (Long)   : 최대 약 922경(거의 무한)");
         System.out.println("=================================================\n");
 
         try {
