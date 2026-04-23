@@ -41,3 +41,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# Database Properties (민감한 정보 숨기기)
+src/main/resources/db.properties
