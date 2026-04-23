@@ -1,9 +1,11 @@
 package jdbc.course.view;
 
 import jdbc.course.controller.CourseController;
+import jdbc.course.difficulty.Difficulty;
 import jdbc.course.dto.CourseResponseDto;
 import jdbc.course.dto.CourseUpdateRequestDto;
 import jdbc.course.exception.UserCancelException;
+import jdbc.course.util.ConsoleInputUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,7 +37,9 @@ public class CourseUpdateView {
             String name = getValidString(br,"🔹 새 강의명: ");
             Integer time = getValidInteger(br,"🔹 새 강의 시간(초): ");
             Long price = getValidLong(br,"🔹 새 가격(원): ");
-            String level = getValidString(br,"🔹 새 난이도(초급/중급/고급): ");
+            // 💡 텍스트 입력 대신 Enum 선택 메서드 호출
+            Difficulty difficulty = ConsoleInputUtil.getValidDifficulty(br);
+            String level = difficulty.getDescription(); // DB에는 "초보" 등의 문자열로 저장
 
             // 2. DTO 포장
             CourseUpdateRequestDto dto = new CourseUpdateRequestDto(name, time, price, level);

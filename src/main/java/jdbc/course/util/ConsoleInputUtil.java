@@ -1,5 +1,6 @@
 package jdbc.course.util;
 
+import jdbc.course.difficulty.Difficulty;
 import jdbc.course.exception.UserCancelException;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -60,6 +61,26 @@ public class ConsoleInputUtil {
         if ("q".equalsIgnoreCase(input)) {
             // 이제 독립된 예외 클래스를 던집니다.
             throw new UserCancelException("작업이 취소되어 메인 메뉴로 돌아갑니다.");
+        }
+    }
+    public static Difficulty getValidDifficulty(BufferedReader br) {
+        while (true) {
+            try {
+                System.out.println("🔹 난이도 선택 (번호 입력):");
+                System.out.println("   1. 초보  |  2. 중급  |  3. 상급");
+                System.out.print("👉 선택: ");
+
+                String input = br.readLine();
+                checkCancel(input); // 'q' 입력 시 취소 처리
+
+                int code = Integer.parseInt(input);
+                return Difficulty.fromCode(code);
+
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [주의] 1, 2, 3 번호 중 하나를 입력해 주세요.");
+            } catch (IOException e) {
+                System.out.println("  [오류] 입력 시스템 문제가 발생했습니다.");
+            }
         }
     }
 }

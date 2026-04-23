@@ -1,6 +1,7 @@
 package jdbc.course.view;
 
 import jdbc.course.controller.CourseController;
+import jdbc.course.difficulty.Difficulty;
 import jdbc.course.dto.CourseResponseDto;
 import jdbc.course.dto.CourseSaveRequestDto;
 import jdbc.course.util.ConsoleInputUtil;
@@ -34,7 +35,9 @@ public class CourseCreateView {
             Integer time = ConsoleInputUtil.getValidInteger(br, "🔹 강의 시간(초): ");
             Long price = ConsoleInputUtil.getValidLong(br, "🔹 가격(원): ");
             String url = ConsoleInputUtil.getValidString(br, "🔹 썸네일 URL: ");
-            String level = ConsoleInputUtil.getValidString(br, "🔹 난이도: ");
+            // 💡 텍스트 입력 대신 Enum 선택 메서드 호출
+            Difficulty difficulty = ConsoleInputUtil.getValidDifficulty(br);
+            String level = difficulty.getDescription(); // DB에는 "초보" 등의 문자열로 저장
 
             CourseSaveRequestDto dto = new CourseSaveRequestDto(userId, categoryId, name, time, price, url, level);
 
