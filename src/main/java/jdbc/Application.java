@@ -1,24 +1,22 @@
 package jdbc;
 
 import com.zaxxer.hikari.HikariDataSource;
+import jdbc.connection.DBConnectionManager;
 import jdbc.course.controller.CourseController;
 import jdbc.course.repository.CourseRepository;
 import jdbc.course.repository.JdbcCourseRepository;
 import jdbc.course.service.CourseService;
 import jdbc.course.view.*;
 
+import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 public class Application {
 
     public static void main(String[] args) {
-        HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/jdbcconsolepg");
-        dataSource.setUsername("min");
-        dataSource.setPassword("min");
-
-        System.out.println("안뇽3");
+        // DBConnectionManager에게 커넥션 풀(DataSource)을 받아옴
+        DataSource dataSource = DBConnectionManager.getDataSource();
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
             // 1. 코어(백엔드) 객체 조립
@@ -42,10 +40,8 @@ public class Application {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (dataSource != null) {
-                dataSource.close();
-                System.out.println("=== DB 커넥션 풀 종료 완료 ===");
-            }
+            // 메인에서 직접 dataSource를 닫지 않고, 매니저에게 종료 책임을 위임
+            DBConnectionManager.close();
         }
     }
 }
