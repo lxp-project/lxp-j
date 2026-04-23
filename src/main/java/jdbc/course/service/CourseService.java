@@ -78,7 +78,12 @@ public class CourseService {
 
     // 4. 삭제
     public void deleteCourse(Long courseId) throws SQLException {
-        courseRepository.deleteById(courseId);
+        int DelCount = courseRepository.deleteById(courseId);
+
+        // 2. 삭제된 갯수가 0개라면? (없는 번호를 입력한 경우)
+        if (DelCount == 0) {
+            throw new IllegalArgumentException("해당 ID(" + courseId + ")의 강의가 존재하지 않아 삭제할 수 없습니다.");
+        }
     }
 
     // 내부에서만 사용하는 공통 변환 메서드 (Entity -> Response DTO)

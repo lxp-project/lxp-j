@@ -57,6 +57,91 @@ public class ConsoleInputUtil {
         }
     }
 
+    // ==========================================
+    // 2. 💡 수정(Update) 전용 입력 메서드 추가 💡
+    // ==========================================
+
+    public static String getUpdateString(BufferedReader br, String prompt, String existingValue) {
+        while (true) {
+            try {
+                System.out.print(prompt + " [현재: " + existingValue + "] ('n' 입력시 유지): ");
+                String input = br.readLine();
+                checkCancel(input);
+
+                if (input.equalsIgnoreCase("n") || input.trim().isEmpty()) {
+                    return existingValue;
+                }
+                return input;
+            } catch (IOException e) {
+                System.out.println("  [오류] 입력 시스템에 문제가 발생했습니다.");
+            }
+        }
+    }
+
+    public static Integer getUpdateInteger(BufferedReader br, String prompt, Integer existingValue) {
+        while (true) {
+            try {
+                System.out.print(prompt + " [현재: " + existingValue + "] ('n' 입력시 유지): ");
+                String input = br.readLine();
+                checkCancel(input);
+
+                if (input.equalsIgnoreCase("n") || input.trim().isEmpty()) {
+                    return existingValue;
+                }
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("  [주의] 숫자만 입력 가능합니다.");
+            } catch (IOException e) {
+                System.out.println("  [오류] 입력 시스템에 문제가 발생했습니다.");
+            }
+        }
+    }
+
+    public static Long getUpdateLong(BufferedReader br, String prompt, Long existingValue) {
+        while (true) {
+            try {
+                System.out.print(prompt + " [현재: " + existingValue + "] ('n' 입력시 유지): ");
+                String input = br.readLine();
+                checkCancel(input);
+
+                if (input.equalsIgnoreCase("n") || input.trim().isEmpty()) {
+                    return existingValue;
+                }
+                return Long.parseLong(input);
+            } catch (NumberFormatException e) {
+                System.out.println("  [주의] 숫자만 입력 가능합니다.");
+            } catch (IOException e) {
+                System.out.println("  [오류] 입력 시스템에 문제가 발생했습니다.");
+            }
+        }
+    }
+
+    public static String getUpdateDifficulty(BufferedReader br, String prompt, String existingValue) {
+        while (true) {
+            try {
+                System.out.println(prompt + " [현재: " + existingValue + "] ('n' 입력시 유지):");
+                System.out.println("   1. 초보  |  2. 중급  |  3. 상급");
+                System.out.print("👉 선택: ");
+
+                String input = br.readLine();
+                checkCancel(input);
+
+                if (input.equalsIgnoreCase("n") || input.trim().isEmpty()) {
+                    return existingValue;
+                }
+                int code = Integer.parseInt(input);
+                return Difficulty.fromCode(code).getDescription();
+
+            } catch (IllegalArgumentException e) {
+                System.out.println("  [주의] 1, 2, 3 번호 중 하나를 입력해 주세요.");
+            } catch (IOException e) {
+                System.out.println("  [오류] 입력 시스템 문제가 발생했습니다.");
+            }
+        }
+    }
+
+
+    ///  공통 처리
     private static void checkCancel(String input) {
         if ("q".equalsIgnoreCase(input)) {
             // 이제 독립된 예외 클래스를 던집니다.
